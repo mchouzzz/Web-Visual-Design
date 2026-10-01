@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>METRO OCC｜大都會捷運行控中心</title>
+<style>
+:root{
+  --bg:#071019;--panel:#0b1824;--panel2:#0d2030;--line:#1f5069;
+  --cyan:#6be7ff;--green:#72f3a5;--amber:#ffd166;--red:#ff5b66;
+  --muted:#7e9aab;--text:#d9f4ff;
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:radial-gradient(circle at 50% 0%,#11283c 0,#071019 45%,#03080d 100%);color:var(--text);font-family:Consolas,"Noto Sans TC","Microsoft JhengHei",monospace}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:38px 38px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.7),transparent 95%)}
+.app{height:100vh;display:grid;grid-template-rows:70px 1fr 34px;padding:10px;gap:8px}
+.header,.footer,.panel{border:1px solid #17415a;background:linear-gradient(180deg,rgba(13,32,48,.96),rgba(5,16,24,.96));box-shadow:0 0 20px rgba(43,179,230,.08) inset,0 0 14px rgba(14,98,139,.08);position:relative;overflow:hidden}
+.header:after,.panel:after{content:"";position:absolute;inset:0;pointer-events:none;border-top:1px solid rgba(107,231,255,.08)}
+.header{display:grid;grid-template-columns:1.25fr 1fr 1.2fr;align-items:center;padding:10px 16px}
+.brand{font-size:14px;color:var(--muted);letter-spacing:2px}.brand b{display:block;color:var(--cyan);font-size:24px;letter-spacing:3px;text-shadow:0 0 12px rgba(107,231,255,.35)}
+.head-center{text-align:center}.clock{font-size:28px;font-weight:700;letter-spacing:2px}.subtime{font-size:12px;color:var(--muted)}
+.systems{display:flex;justify-content:flex-end;gap:14px}.sys{font-size:11px;color:var(--muted);text-align:right}.led{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:6px;background:var(--green);box-shadow:0 0 10px var(--green)}
+.main{display:grid;grid-template-columns:1.2fr 2.4fr 1.1fr;grid-template-rows:1fr 1fr;gap:8px;min-height:0}
+.panel{padding:10px}.panel h3{margin:0 0 8px;font-size:12px;font-weight:600;color:var(--cyan);letter-spacing:1.5px;display:flex;justify-content:space-between}.panel h3 span{color:var(--muted);font-weight:400}
+.kpis{grid-row:1 / span 2;display:grid;grid-template-rows:auto repeat(5,1fr) auto;gap:7px}.kpi{background:#08151f;border-left:3px solid #1d5772;padding:10px;display:flex;align-items:center;justify-content:space-between}.kpi .label{font-size:11px;color:var(--muted)}.kpi .value{font-size:22px;font-weight:700}.kpi small{font-size:10px;color:var(--green)}
+.line-map{grid-column:2;grid-row:1 / span 2;display:grid;grid-template-rows:auto 1fr 150px;min-width:0}.map{position:relative;min-height:0;background:linear-gradient(180deg,rgba(7,19,28,.5),rgba(3,10,15,.9));border:1px solid #12394f;overflow:hidden}
+.scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.25;animation:scan 5s linear infinite}@keyframes scan{from{top:-2px}to{top:100%}}
+.route{position:absolute;height:7px;border-radius:8px;filter:drop-shadow(0 0 6px currentColor)}
+.r1{left:8%;right:8%;top:24%;background:#58d7ff;color:#58d7ff}.r2{left:12%;right:12%;top:50%;background:#7bf29c;color:#7bf29c}.r3{left:17%;right:7%;top:75%;background:#ffbf69;color:#ffbf69}
+.station{position:absolute;width:12px;height:12px;border:2px solid #d7f8ff;background:#08131d;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 7px rgba(215,248,255,.6)}
+.station-label{position:absolute;transform:translate(-50%,0);font-size:9px;color:#91afbe;white-space:nowrap}
+.train{position:absolute;width:22px;height:12px;border:1px solid currentColor;background:#081821;border-radius:2px;box-shadow:0 0 12px currentColor;transform:translate(-50%,-50%);transition:left 1.1s linear}.train:before{content:"";position:absolute;left:4px;top:3px;width:5px;height:3px;background:currentColor;box-shadow:8px 0 0 currentColor}.train-id{position:absolute;top:-14px;left:-6px;font-size:8px;color:#d8f8ff}
+.lower{display:grid;grid-template-columns:1.1fr 1fr;gap:8px;min-height:0}.table-wrap,.log-wrap{background:#07141d;border:1px solid #12394f;overflow:hidden}table{width:100%;border-collapse:collapse;font-size:10px}th,td{padding:6px 7px;border-bottom:1px solid #102d3d;text-align:left}th{color:#6ca9c4;font-weight:500}td:nth-child(3),td:nth-child(4){font-variant-numeric:tabular-nums}.status-ok{color:var(--green)}.status-delay{color:var(--amber)}.status-alert{color:var(--red)}
+.log{height:100%;overflow:hidden;font-size:10px;line-height:1.55;padding:7px}.log div{white-space:nowrap;color:#89aebe}.log b{color:#cdefff}.log .warn{color:var(--amber)}.log .critical{color:var(--red)}
+.right-top{display:grid;grid-template-rows:auto 1fr auto;min-height:0}.alerts{overflow:hidden}.alert{display:grid;grid-template-columns:62px 1fr auto;gap:8px;align-items:center;padding:8px 5px;border-bottom:1px solid #173142;font-size:10px}.badge{font-size:9px;padding:3px 5px;text-align:center;border:1px solid}.b1{color:var(--red);border-color:#853a43;background:#2a0f14}.b2{color:var(--amber);border-color:#7f6438;background:#241d0d}.b3{color:var(--cyan);border-color:#2f6579;background:#0b2029}.blink{animation:blink 1s steps(2,end) infinite}@keyframes blink{50%{opacity:.35}}
+.signal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}.sig{height:28px;border:1px solid #17415a;display:flex;align-items:center;justify-content:center;font-size:9px;color:#7e9aab;background:#06121a}.sig.on{color:var(--green);box-shadow:0 0 10px rgba(114,243,165,.12) inset}.sig.warn{color:var(--amber)}
+.right-bottom{display:grid;grid-template-rows:auto 1fr}.bars{display:flex;align-items:end;gap:6px;height:100%;padding:8px 2px 2px}.bar{flex:1;background:linear-gradient(#66e5ff,#17465f);min-height:8%;position:relative;transition:height .8s ease}.bar:after{content:attr(data-v);position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:8px;color:#8bb4c6}
+.footer{display:flex;align-items:center;gap:14px;padding:0 10px;font-size:10px}.ticker-title{color:var(--red);font-weight:700}.ticker{white-space:nowrap;overflow:hidden;flex:1;color:#9cc4d5}.ticker span{display:inline-block;padding-left:100%;animation:ticker 26s linear infinite}@keyframes ticker{to{transform:translateX(-100%)}}
+.pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);margin-right:5px;animation:blink .8s infinite}
+.corner{position:absolute;width:10px;height:10px}.c1{top:0;left:0;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan)}.c2{top:0;right:0;border-top:2px solid var(--cyan);border-right:2px solid var(--cyan)}.c3{bottom:0;left:0;border-bottom:2px solid var(--cyan);border-left:2px solid var(--cyan)}.c4{bottom:0;right:0;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan)}
+@media(max-width:1000px){.main{grid-template-columns:1fr 2fr}.right-top,.right-bottom{display:none}.header{grid-template-columns:1fr 1fr}.systems{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="brand">METROPOLITAN TRANSIT AUTHORITY<b>METRO OCC / 行控中心</b></div>
+    <div class="head-center"><div class="clock" id="clock">00:00:00</div><div class="subtime" id="date">--</div></div>
+    <div class="systems">
+      <div class="sys">ATS 自動列車監控 <span class="led"></span><br><small>ONLINE / NORMAL</small></div>
+      <div class="sys">SCADA 電力監控 <span class="led"></span><br><small>LINK 99.98%</small></div>
+      <div class="sys">COMMS 通訊系統 <span class="led"></span><br><small>SYNCED</small></div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="panel kpis">
+      <h3>NETWORK OVERVIEW <span>即時營運概況</span></h3>
+      <div class="kpi"><div><div class="label">全線在線列車</div><small>LIVE FLEET</small></div><div class="value"><span id="fleet">86</span><small> 組</small></div></div>
+      <div class="kpi"><div><div class="label">準點率</div><small>HEADWAY STABILITY</small></div><div class="value"><span id="ontime">98.7</span><small>%</small></div></div>
+      <div class="kpi"><div><div class="label">即時運量</div><small>PASSENGER LOAD</small></div><div class="value"><span id="pax">128,420</span><small> 人</small></div></div>
+      <div class="kpi"><div><div class="label">平均班距</div><small>MEAN HEADWAY</small></div><div class="value"><span id="headway">3.8</span><small> min</small></div></div>
+      <div class="kpi"><div><div class="label">未結案警報</div><small>ACTIVE EVENTS</small></div><div class="value status-alert"><span id="activeAlert">3</span><small> 件</small></div></div>
+      <div style="font-size:10px;color:#6f8e9f;line-height:1.6">核心模式：自動調度<br>控制權：OCC CENTRAL<br>備援中心：STANDBY READY<br>資料刷新：<span id="refresh">1.2</span>s</div>
+    </section>
+
+    <section class="panel line-map">
+      <h3>LIVE TRAIN POSITIONING <span>列車位置與區間監控</span></h3>
+      <div class="map" id="map"><div class="scan"></div>
+        <div class="route r1"></div><div class="route r2"></div><div class="route r3"></div>
+      </div>
+      <div class="lower">
+        <div class="table-wrap"><table><thead><tr><th>車次</th><th>區間</th><th>速度</th><th>偏差</th><th>狀態</th></tr></thead><tbody id="trainTable"></tbody></table></div>
+        <div class="log-wrap"><div class="log" id="log"></div></div>
+      </div>
+    </section>
+
+    <section class="panel right-top">
+      <h3>ALERT CONSOLE <span>事件與警報</span></h3>
+      <div class="alerts" id="alerts">
+        <div class="alert"><span class="badge b1 blink">PRIORITY 1</span><span>R2-17 車門回報異常，已切換人工確認</span><span>00:21</span></div>
+        <div class="alert"><span class="badge b2">PRIORITY 2</span><span>中央站月台旅客密度偏高，啟動疏導</span><span>01:42</span></div>
+        <div class="alert"><span class="badge b3">NOTICE</span><span>東區變電站例行切換完成</span><span>03:18</span></div>
+        <div class="alert"><span class="badge b3">NOTICE</span><span>夜間維修工單 #MX-2048 建立</span><span>05:04</span></div>
+      </div>
+      <div class="signal-grid" id="signals"></div>
+    </section>
+
+    <section class="panel right-bottom">
+      <h3>STATION LOAD INDEX <span>各站旅運壓力</span></h3>
+      <div class="bars" id="bars"></div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="ticker-title"><span class="pulse"></span>OPS FEED</div><div class="ticker"><span>R1 藍線維持正常班距 ｜ R2 綠線 18:40 啟動尖峰加班車 ｜ 中央站月台密度 82% ｜ 西門站電扶梯 E3 維修中 ｜ OCC 指令 #A-771 已下達 ｜ 全線 ATP / ATO 狀態正常 ｜ 氣象資訊：地面降雨機率 36% ｜ </span></div><div>SECURE LINK: AES-256</div></footer>
+</div>
+<script>
+const map=document.getElementById('map');
+const routes=[{y:24,color:'#58d7ff',code:'B'},{y:50,color:'#7bf29c',code:'G'},{y:75,color:'#ffbf69',code:'O'}];
+const stationNames=['北門','市政','中央','科技園區','河岸','東門','機場'];
+routes.forEach((r,ri)=>{
+  [10,23,36,50,64,78,91].forEach((x,i)=>{
+    const s=document.createElement('div');s.className='station';s.style.left=x+'%';s.style.top=r.y+'%';map.appendChild(s);
+    if(ri===0){const l=document.createElement('div');l.className='station-label';l.style.left=x+'%';l.style.top=(r.y+4)+'%';l.textContent=stationNames[i];map.appendChild(l)}
+  });
+});
+const trains=[];
+for(let i=0;i<12;i++){
+  const r=routes[i%3],t=document.createElement('div');t.className='train';t.style.color=r.color;t.style.top=r.y+'%';
+  const id=r.code+(201+i);t.innerHTML='<span class="train-id">'+id+'</span>';map.appendChild(t);
+  trains.push({el:t,id,route:i%3,pos:(8+i*7.2)%86+7,speed:0.15+Math.random()*.12,dir:i%4===0?-1:1});
+}
+function moveTrains(){trains.forEach(t=>{t.pos+=t.speed*t.dir;if(t.pos>92){t.pos=92;t.dir=-1}if(t.pos<8){t.pos=8;t.dir=1}t.el.style.left=t.pos+'%'});requestAnimationFrame(moveTrains)}moveTrains();
+
+function now(){const d=new Date();document.getElementById('clock').textContent=d.toLocaleTimeString('zh-TW',{hour12:false});document.getElementById('date').textContent=d.toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'})+'  TAIPEI OPS TIME';}
+setInterval(now,1000);now();
+const rnd=(a,b)=>a+Math.random()*(b-a);
+setInterval(()=>{
+  document.getElementById('fleet').textContent=Math.round(rnd(84,89));
+  document.getElementById('ontime').textContent=rnd(97.9,99.5).toFixed(1);
+  document.getElementById('pax').textContent=Math.round(rnd(126000,134000)).toLocaleString();
+  document.getElementById('headway').textContent=rnd(3.5,4.2).toFixed(1);
+  document.getElementById('activeAlert').textContent=Math.round(rnd(2,5));
+  document.getElementById('refresh').textContent=rnd(.8,1.6).toFixed(1);
+},1800);
+
+const tbody=document.getElementById('trainTable');
+function drawTable(){tbody.innerHTML='';trains.slice(0,7).forEach((t,i)=>{const delay=Math.round(rnd(-18,58));let cls='status-ok',st='正常';if(delay>35){cls='status-delay';st='調整中'}if(i===2&&Math.random()>.5){cls='status-alert';st='人工監控'}const tr=document.createElement('tr');tr.innerHTML=`<td>${t.id}</td><td>${stationNames[(i+1)%7]} → ${stationNames[(i+2)%7]}</td><td>${Math.round(rnd(42,78))} km/h</td><td>${delay>0?'+':''}${delay}s</td><td class="${cls}">${st}</td>`;tbody.appendChild(tr)})}
+setInterval(drawTable,2200);drawTable();
+
+const log=document.getElementById('log');const msgs=['ATS：自動進路鎖定完成','SCADA：牽引供電電壓穩定','PSD：月台門回報 100% CLOSED','OCC：尖峰班表動態修正','AFC：閘門流量資料同步','CCTV：中央站人流模型更新','COMMS：車地無線封包校驗完成'];
+function pushLog(){const d=document.createElement('div');const tm=new Date().toLocaleTimeString('zh-TW',{hour12:false});const special=Math.random();d.className=special>.92?'critical':special>.78?'warn':'';d.innerHTML=`<b>${tm}</b>  ${msgs[Math.floor(Math.random()*msgs.length)]} / ${Math.floor(rnd(1000,9999))}`;log.prepend(d);while(log.children.length>10)log.removeChild(log.lastChild)}
+setInterval(pushLog,950);for(let i=0;i<7;i++)pushLog();
+
+const sig=document.getElementById('signals');for(let i=1;i<=12;i++){const e=document.createElement('div');e.className='sig on';e.textContent='SIG '+String(i).padStart(2,'0');sig.appendChild(e)}
+setInterval(()=>{[...sig.children].forEach((e,i)=>{const r=Math.random();e.className='sig '+(r>.9?'warn':'on');e.textContent='SIG '+String(i+1).padStart(2,'0')+(r>.9?' HOLD':'')})},1300);
+
+const bars=document.getElementById('bars');for(let i=0;i<10;i++){const b=document.createElement('div');b.className='bar';bars.appendChild(b)}
+function drawBars(){[...bars.children].forEach((b,i)=>{const v=Math.round(rnd(28,94));b.style.height=v+'%';b.dataset.v=v+'%'})}setInterval(drawBars,1700);drawBars();
+
+document.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='f')document.documentElement.requestFullscreen?.()});
+</script>
+</body>
+</html>
